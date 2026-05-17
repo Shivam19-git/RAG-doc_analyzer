@@ -1,37 +1,96 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 function App() {
-
-  const [message, setMessage] = useState('')
+  const [text, setText] = useState('')
   const [response, setResponse] = useState('')
-  
-  const sendMessage = async()=>{
 
-    console.log("Current message state is:", message);
+  const [file, setFile] = useState(null)
+  const [message, setMessage] = useState('')
 
-    
-    const response = await fetch('http://localhost:3000/api/chat',{
-      method:'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message })
-    })
+  const handleFileChange = async (e) => {
+    try {
 
-    const data = await response.json()
-    setResponse(data.message)
+      setFile(e.target.files[0])
+
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
+
+  const uploadFile = async () => {
+    if (!file) {
+      alert("Select a file first");
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      setMessage(`Uploaded: ${data.filename}`);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const sendText = async () => {
+    try {
+
+      const res = await fetch('http://127.0.0.1:8000/send', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          text: text,
+        }),
+
+      })
+
+      const data = await res.json()
+      setResponse(data.received_text)
+
+    } catch (error) {
+      console.log(error.message)
+    }
   }
 
   return (
     <>
-      <input 
-      type="text"
-      placeholder='send message'
-      value={message}
-      onChange={(e)=>{e.target.value}}
-      />
+      <div>
 
-      <button onClick={sendMessage}>Send</button>
-      <p>Response : {response}</p>
+        <input
+          type="text"
+          placeholder='Stell irgendeine Frage'
+          value={text}
+          onChange={(e) => { setText(e.target.value) }}
+        />
+
+        <button onClick={sendText}>Send</button>
+        
+        <h3>Response from backend</h3>
+        <p>{response}</p>
+
+        <input type="file"
+          onChange={handleFileChange}
+        />
+
+        <button onClick={uploadFile}></button>
+        <p>File Response : {message}</p>
+
+      </div>
     </>
   )
 }
