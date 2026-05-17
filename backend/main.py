@@ -73,11 +73,11 @@ async def received_text(message: Message):
 @app.post('/upload')
 async def upload_file(file: UploadFile = File(...)):
     # 1. Validate the file type before doing any work
-    if file.content_type not in ALLOWED_TYPES:
-        raise HTTPException(
-            status_code=400, 
-            detail=f"Unsupported file type: {file.content_type}. Please upload a txt, pdf, or md file."
-        )
+#    if file.content_type not in ALLOWED_TYPES:
+#        raise HTTPException(
+#            status_code=400, 
+#            detail=f"Unsupported file type: {file.content_type}. Please upload a txt, pdf, or md file."
+#        )
 
     # 2. Read file content directly into memory for fast processing
     content = await file.read()

@@ -32,6 +32,11 @@ function App() {
       });
 
       const data = await response.json();
+      if(!response.ok){
+        setMessage(`Error: ${data.detail}`);
+        return
+      }
+
       setMessage(`Uploaded: ${data.filename}`);
       
       
