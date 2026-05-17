@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 
 function App() {
@@ -10,11 +10,9 @@ function App() {
 
   const handleFileChange = async (e) => {
     try {
-
       setFile(e.target.files[0])
-
     } catch (error) {
-      console.log(error.message)
+      console.log("Error setting file:", error.message)
     }
   }
 
@@ -25,29 +23,25 @@ function App() {
     }
 
     const formData = new FormData();
-
     formData.append("file", file);
 
     try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch("http://127.0.0.1:8000/upload", {
+        method: "POST",
+        body: formData, 
+      });
 
       const data = await response.json();
-
       setMessage(`Uploaded: ${data.filename}`);
+      
+      
     } catch (error) {
-      console.error(error);
+      console.error("Upload failed:", error);
     }
   }
 
   const sendText = async () => {
     try {
-
       const res = await fetch('http://127.0.0.1:8000/send', {
         method: "POST",
         headers: {
@@ -56,21 +50,19 @@ function App() {
         body: JSON.stringify({
           text: text,
         }),
-
       })
 
       const data = await res.json()
       setResponse(data.received_text)
 
     } catch (error) {
-      console.log(error.message)
+      console.log("Text ping error:", error.message)
     }
   }
 
   return (
     <>
       <div>
-
         <input
           type="text"
           placeholder='Stell irgendeine Frage'
@@ -83,11 +75,13 @@ function App() {
         <h3>Response from backend</h3>
         <p>{response}</p>
 
-        <input type="file"
+        <input 
+          type="file"
           onChange={handleFileChange}
         />
 
-        <button onClick={uploadFile}></button>
+      
+        <button onClick={uploadFile}>Upload Document</button>
         <p>File Response : {message}</p>
 
       </div>
