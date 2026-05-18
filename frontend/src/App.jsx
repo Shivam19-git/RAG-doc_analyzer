@@ -74,11 +74,10 @@ function App() {
           value={text}
           onChange={(e) => { setText(e.target.value) }}
         />
+        <h5>you : <p>{response}</p></h5>
 
         <button onClick={sendText}>Send</button>
         
-        <h3>Response from backend</h3>
-        <p>{response}</p>
 
         <input 
           type="file"
