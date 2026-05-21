@@ -18,47 +18,47 @@ function App() {
 
   const uploadFile = async () => {
     if (!file) {
-      alert("Select a file first");
-      return;
+      alert("Select a file first")
+      return
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
+    const formData = new FormData()
+    formData.append("file", file)
 
     try {
       const response = await fetch("http://127.0.0.1:8000/upload", {
         method: "POST",
         body: formData, 
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
       if(!response.ok){
-        setMessage(`Error: ${data.detail}`);
+        setMessage(`Error: ${data.detail}`)
         return
       }
 
-      setMessage(`Uploaded: ${data.filename}`);
+      setMessage(`Uploaded: ${data.filename}`)
       
       
     } catch (error) {
-      console.error("Upload failed:", error);
+      console.error("Upload failed:", error)
     }
   }
 
   const sendText = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/send', {
+      const res = await fetch('http://127.0.0.1:8000/chat', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          text: text,
+          prompt: text,
         }),
       })
 
       const data = await res.json()
-      setResponse(data.received_text)
+      setResponse(data.response)
 
     } catch (error) {
       console.log("Text ping error:", error.message)
@@ -74,10 +74,11 @@ function App() {
           value={text}
           onChange={(e) => { setText(e.target.value) }}
         />
-        <h5>you : <p>{response}</p></h5>
 
         <button onClick={sendText}>Send</button>
         
+        <h5>Groq : </h5>
+        <p>{response}</p>
 
         <input 
           type="file"

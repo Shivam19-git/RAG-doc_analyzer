@@ -1,22 +1,17 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import uuid, io, os, shutil
-from pypdf import PdfReader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from dotenv import load_dotenv
+from services.chat import chat_bot
+from routes.upload import upload_file
+import os
 
+
+load_dotenv()
 
 app = FastAPI()
 
-#  Get the absolute path of the directory containing this main.py file
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
-
-# to ensure that the upload directory exists
-os.makedirs(BASE_DIR,exist_ok = True)
-
-
+# CORS
 origins = [
     "http://localhost:5173",
 ]
@@ -29,48 +24,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Base Model for text messages
-class Message(BaseModel):
-    text: str
 
-# Define what file formats the RAG system is allowed to process
-ALLOWED_TYPES = [
-    "text/plain",               # .txt files
-    "application/pdf",          # .pdf files
-    "text/markdown"             # .md files
-]
+# Request Model
+class ChatRequest(BaseModel):
+    prompt: str
 
-@app.get('/home')
+
+@app.get("/home")
 def home():
-    return {"message": "Hello, FastAPI"}
-
-@app.post('/send')
-async def received_text(message: Message):
-    print("Received : ", message.text)
     return {
-        "status": "success",
-        "received_text": message.text
+        "message": "Hello FastAPI"
     }
 
 
-@app.post('/upload')
-async def upload_file(file: UploadFile = File(...)):
-    try:
-        file_path = os.path.join(UPLOAD_DIR, file.filename)
+# Upload Route
+@app.post("/upload")
+async def upload_pdf(file: UploadFile = File(...)):
 
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+    result = await upload_file(file)
 
-        return {
-            "message": "File successfully saved to the backend folder", 
-            "filename": file.filename,
-            "path": file_path
-        }
+    return result
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Could not save file: {str(e)}")
-    
-    
-    
-    
-    
+
+# Chat Route
+@app.post("/chat")
+async def chat(req: ChatRequest):
+
+    ai_reply = await chat_bot(req.prompt)
+    return {
+        "response": ai_reply
+    }
