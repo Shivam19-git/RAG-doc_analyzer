@@ -1,66 +1,39 @@
-from fastapi import UploadFile, File, HTTPException
-from utils.chunking import split_text_in_chunks
-from pypdf import PdfReader
-
+from fastapi import APIRouter, UploadFile, File
 import os
 import shutil
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import FakeEmbeddings  # Or HuggingFaceEmbeddings()
 
+router = APIRouter()
 
+# Folder to save uploads and index
+UPLOAD_DIR = "uploads"
+INDEX_DIR = "faiss_index"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Using a lightweight local embedding model
+embeddings = FakeEmbeddings(size=384) 
+
+@router.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
-
-    # backend/
-    BASE_DIR = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..")
-    )
-
-    # backend/uploads/
-    UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
-
-    # Create uploads folder
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-    try:
-
-        if file.content_type != "application/pdf":
-            raise HTTPException(
-                status_code=400,
-                detail="Only PDFs are allowed"
-            )
-
-        file_path = os.path.join(
-            UPLOAD_DIR,
-            file.filename
-        )
-
-        # Save PDF
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
-        # Read PDF
-        reader = PdfReader(file_path)
-
-        raw_text = ""
-
-        for page in reader.pages:
-
-            text = page.extract_text()
-
-            if text:
-                raw_text += text + "\n"
-
-        # Chunk text
-        chunks = split_text_in_chunks(raw_text)
-
-        return {
-            "message": "File uploaded successfully",
-            "filename": file.filename,
-            "path": file_path,
-            "chunks": len(chunks)
-        }
-
-    except Exception as e:
-
-        raise HTTPException(
-            status_code=500,
-            detail=f"Could not save file: {str(e)}"
-        )
+    file_path = os.path.join(UPLOAD_DIR, file.filename)
+    
+    # 1. Save uploaded file to disk
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    # 2. Extract text from PDF
+    loader = PyPDFLoader(file_path)
+    documents = loader.load()
+    
+    # 3. Chunk the document
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    docs = text_splitter.split_documents(documents)
+    
+    # 4. Create FAISS vector store and save locally
+    vector_store = FAISS.from_documents(docs, embeddings)
+    vector_store.save_local(INDEX_DIR)
+    
+    return {"message": "File processed and indexed successfully", "filename": file.filename}

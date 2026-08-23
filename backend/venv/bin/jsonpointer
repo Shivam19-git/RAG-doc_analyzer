@@ -1,4 +1,4 @@
-#!/mnt/c/Users/Shivam/Desktop/Project/RAG-doc-analyzer/backend/venv/bin/python3
+#!/Users/shivam/projects/rag-doc/backend/venv/bin/python3.13
 
 
 import argparse
