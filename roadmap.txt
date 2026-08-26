@@ -1,81 +1,27 @@
-NO COPY PASTE from LLM
-NO AUTO-COMPLETE VS CODE
+Phase 1
 
-Goal : A full-stack application that allows users to upload documents 
-       and query them through a chat interface.
+[ Frontend: PDF File ]
+         │ (HTTP POST /upload)
+         ▼
+[ FastAPI Route: routes/upload.py ]
+         │
+         ├──► 1. File Storage: Speichert die PDF-Datei im Verzeichnis 'uploads/'
+         ├──► 2. Text Parsing: 'PyPDFLoader' liest den Text seitenweise aus
+         ├──► 3. Chunking: 'RecursiveCharacterTextSplitter' zerlegt den Text 
+         │      (z. B. 1000 Zeichen pro Chunk, 200 Overlap)
+         ├──► 4. Embeddings: Vektorisierung der Textabschnitte
+         └──► 5. Vector Store: 'FAISS.from_documents()' speichert Vektoren lokal
 
-Tech Stack : Frontend React.js
-             Backend Node.js
-
-             Langchain.js -> Text processing and embedding models
-                             vector creation
-
-             Ollama or Groq AI model locally
-
-Goal : To demonstrate your ability to architect complete systems, handling
-       everything from frontend UX and backend routing to AI orchestration.
-
-
-Expected finish time : two hours per day / two and half week
-
-
-Step 1: The Shell (Your Comfort Zone)
-
-Before we touch any AI or databases, build the foundation using what you already know.
-
-    Frontend: Create a React interface with a chat window and a file upload button.
-
-    Backend: Set up a basic Node.js/Express server.
-
-    The Goal: Prove the connection. Upload a dummy file from React to Express, 
-              send a text message, and have Express return a hardcoded response like 
-              "Message received!"
-
-
-Step 2: Connecting the Local Brain (Ollama)
-
-Now we bring in the AI, but keep it simple. No RAG yet, just a basic chatbot.
-
-    Action: Ensure Ollama is running on your Fedora machine.
-
-    Integration: In your Node.js backend, use the native ollama npm package 
-    (or standard fetch requests) to send the user's message to a local model 
-    (like llama3) and stream the response back to your React frontend.
-
-    The Goal: You now have a working, custom-built ChatGPT clone running locally.
-
-Step 3: Understanding Embeddings (The "Aha!" Moment)
-
-This is where the RAG concept actually starts. Before you use a database, 
-you need to understand what an "embedding" is.
-
-    Concept: An embedding is simply taking a sentence and converting it into a 
-             massive array of numbers that represent the sentence's meaning.
-
-    Action: Write an isolated Node.js script. Send a single sentence 
-            (e.g., "The user loves playing chess") to Ollama's embedding model. Look at the output. 
-            You will literally see an array of hundreds of numbers.
-
-Step 4: The Vector Database (PostgreSQL + pgvector)
-
-Don't be intimidated by Postgres. Since you are on Fedora, you can spin this up 
-very easily using Docker so you don't have to mess with complex installations.
-
-    Concept: Standard databases search for exact keyword matches. A Vector 
-             Database (PostgreSQL with the pgvector extension) searches those arrays of numbers 
-             you generated in Step 3 to find text that has a similar meaning, even if the exact 
-             words are different.
-
-    Action: Set up a local Postgres database, insert a few text embeddings, and write a query to search for the closest match.
-
-Step 5: The Orchestrator (LangChain.js)
-
-Only once you understand Steps 3 and 4 should you introduce LangChain.
-
-    Concept: LangChain is not magic. It's just a tool that automates the boring stuff. 
-             It handles reading a massive PDF, splitting it into small paragraphs, 
-             turning those paragraphs into numbers (embeddings), saving them to Postgres, 
-             and fetching them when a user asks a question.
-
-    Action: Implement LangChain.js in your Express backend to tie the file upload, 
-            the database, and Ollama together.
+Phase 2
+[ Frontend: User Prompt ]
+         │ (HTTP POST /chat)
+         ▼
+[ FastAPI Service: services/chat.py ]
+         │
+         ├──► 1. Load Index: FAISS lädt den lokalen Vektorindex
+         ├──► 2. Vector Search: 'similarity_search(prompt, k=3)' berechnet Cosine Similarity
+         │      und findet die Top-3 passenden Abschnitte
+         ├──► 3. Context Augmentation: Zusammensetzen des System-Prompts:
+         │      "Use this context: [Chunk 1, Chunk 2, Chunk 3] to answer: [Prompt]"
+         ├──► 4. LLM Inference: Senden des Payloads an die Groq-API (z. B. openai/gpt-oss-120b)
+         └──► 5. Streaming/Return: Antwort wird als Markdown im Frontend gerendert

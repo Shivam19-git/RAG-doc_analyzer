@@ -24,12 +24,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Request Model
-class ChatRequest(BaseModel):
-    prompt: str
-
-
 @app.get("/home")
 def home():
     return {
@@ -45,6 +39,9 @@ async def upload_pdf(file: UploadFile = File(...)):
 
     return result
 
+
+class ChatRequest(BaseModel):
+    prompt: str
 
 # Chat Route
 @app.post("/chat")

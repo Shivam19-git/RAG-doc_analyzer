@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import "./App.css";
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+
 export default function App() {
   const [messages, setMessages] = useState([
     {
@@ -48,7 +50,7 @@ export default function App() {
     setUploadStatus("Processing and indexing document...");
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/upload", {
+      const res = await fetch(`${API_URL}/upload`, {
         method: "POST",
         body: formData,
       });
@@ -83,7 +85,8 @@ export default function App() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/chat", {
+      const res = await fetch(
+        `${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: userMessage }),

@@ -25,6 +25,7 @@ async def chat_bot(prompt: str):
                 embeddings, 
                 allow_dangerous_deserialization=True
             )
+            
             # Retrieve the top 3 matching chunks
             docs = vector_store.similarity_search(prompt, k=3)
             context_text = "\n\n".join([doc.page_content for doc in docs])
