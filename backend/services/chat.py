@@ -35,17 +35,18 @@ async def chat_bot(prompt: str):
     # 2. Build the context-grounded prompt
     if context_text.strip():
         system_prompt = (
-            "You are a helpful assistant. Use the following context from the document to answer the question. "
-            "If the question cannot be answered from the document, answer using your general knowledge.\n\n"
+            "You are an expert document assistant. Answer the user's question clearly and concisely based on the retrieved context.\n"
+            "Format your output cleanly using Markdown (bold section titles, itemized bullet points, or clean Markdown tables when presenting structured key-value data).\n"
+            "Avoid clumping multiple fields onto single unbroken lines.\n\n"
             f"Context:\n{context_text}"
-        )
+        )           
     else:
         system_prompt = "You are a helpful AI assistant."
 
     # 3. Call Groq
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="openai/gpt-oss-120b",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},

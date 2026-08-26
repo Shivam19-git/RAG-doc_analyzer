@@ -1,0 +1,18 @@
+cat <<EOT >> .gitignore
+# Environments
+.env
+.env.local
+*.env
+
+# Python Cache & Virtual Environments
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node modules & build artifacts
+node_modules/
+dist/
+faiss_index/
+uploads/
+EOT
