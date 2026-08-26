@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from routes.upload import router as upload_router
 from services.chat import chat_bot
 from routes.upload import upload_file
 import os
@@ -9,26 +10,22 @@ import os
 
 load_dotenv()
 
-app = FastAPI()
+app = FastAPI(title="RAG-Doc Analyzer API")
 
-# CORS
-origins = [
-    "http://localhost:5173",
-]
-
+# Configure CORS for all origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=False,  # Must be False when allow_origins is ["*"]
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-@app.get("/home")
-def home():
-    return {
-        "message": "Hello FastAPI"
-    }
 
+app.include_router(upload_router)
+
+@app.get("/")
+def root():
+    return {"status": "online", "message": "RAG-Doc Analyzer API"}
 
 # Upload Route
 @app.post("/upload")

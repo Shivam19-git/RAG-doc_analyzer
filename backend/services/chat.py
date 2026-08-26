@@ -33,24 +33,49 @@ async def chat_bot(prompt: str):
             print(f"Error loading index: {e}")
 
     # 2. Build the context-grounded prompt
-    system_prompt = (
-        "You are a helpful assistant. Use the following extracted document context to answer the user's question if relevant. "
-            "If the question is about the document and cannot be answered from the context, state that the document does not contain that information. "
-            "If the question is a general question unrelated to the document, answer it using your general knowledge.\n\n"
+    if context_text.strip():
+        system_prompt = (
+            "You are a helpful assistant. Use the following context from the document to answer the question. "
+            "If the question cannot be answered from the document, answer using your general knowledge.\n\n"
             f"Context:\n{context_text}"
-    )
+        )
+    else:
+        system_prompt = "You are a helpful AI assistant."
 
     # 3. Call Groq
     try:
         response = client.chat.completions.create(
-            model="openai/gpt-oss-120b",
+            model="llama-3.3-70b-versatile",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},
             ],
+            temperature=0.7,
+            max_tokens=1024,
         )
         return response.choices[0].message.content
-    except Exception as e:
-        print(f"Error calling Groq API: {e}")
-        return "Sorry, I couldn't process your request at the moment."
+    except Exception as err:
+        print(f"Groq API Error: {err}")
+        return f"Service Notice: {str(err)}"
+
+
+
+
+
+
+    ''' (old code)
+    try:
+            response = client.chat.completions.create(
+                model="openai/gpt-oss-120b",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt},
+                ],
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"Error calling Groq API: {e}")
+            return "Sorry, I couldn't process your request at the moment."
+        
+    '''
     
