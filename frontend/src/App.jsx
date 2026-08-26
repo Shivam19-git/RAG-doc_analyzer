@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import { 
-  Paperclip, 
-  Send, 
-  Bot, 
-  User, 
-  FileText, 
-  Loader2, 
+import remarkGfm from "remark-gfm"; // 1. Add this import
+import {
+  Paperclip,
+  Send,
+  Bot,
+  User,
+  FileText,
+  Loader2,
   Sparkles,
   X
 } from "lucide-react";
@@ -124,10 +125,10 @@ export default function App() {
           <div className="file-badge">
             <FileText size={14} color="#a8c7fa" />
             <span>{uploadedFile}</span>
-            <X 
-              size={14} 
+            <X
+              size={14}
               className="close-icon"
-              onClick={() => { setUploadedFile(null); setUploadStatus(""); }} 
+              onClick={() => { setUploadedFile(null); setUploadStatus(""); }}
             />
           </div>
         )}
@@ -145,7 +146,9 @@ export default function App() {
               )}
 
               <div className={`message-bubble ${msg.role === "user" ? "user-bubble" : "assistant-bubble"}`}>
-                <ReactMarkdown>{msg.content}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {msg.content}
+                </ReactMarkdown>
               </div>
 
               {msg.role === "user" && (

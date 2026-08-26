@@ -212,3 +212,86 @@
 .spin {
   animation: spin 1s linear infinite;
 }
+
+/* Markdown Content Typography & Tables */
+.message-bubble h1,
+.message-bubble h2,
+.message-bubble h3,
+.message-bubble h4 {
+  color: #f1f3f4;
+  margin-top: 14px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.message-bubble p {
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.message-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.message-bubble ul,
+.message-bubble ol {
+  margin-left: 20px;
+  margin-bottom: 12px;
+}
+
+.message-bubble li {
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+
+/* Beautiful Clean Dark Tables */
+.message-bubble table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #3c4043;
+  background-color: #1e1f20;
+}
+
+.message-bubble th,
+.message-bubble td {
+  padding: 10px 14px;
+  text-align: left;
+  border: 1px solid #3c4043;
+}
+
+.message-bubble th {
+  background-color: #282a2c;
+  color: #a8c7fa;
+  font-weight: 600;
+}
+
+.message-bubble tr:nth-child(even) {
+  background-color: #18191a;
+}
+
+.message-bubble tr:hover {
+  background-color: #2b2c2e;
+}
+
+/* Code & Blockquote */
+.message-bubble code {
+  background-color: #282a2c;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+  color: #e2e8f0;
+}
+
+.message-bubble pre {
+  background-color: #1e1f20;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  border: 1px solid #3c4043;
+  margin: 12px 0;
+}
