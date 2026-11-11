@@ -1,0 +1,27 @@
+Phase 1
+
+[ Frontend: PDF File ]
+         │ (HTTP POST /upload)
+         ▼
+[ FastAPI Route: routes/upload.py ]
+         │
+         ├──► 1. File Storage: Speichert die PDF-Datei im Verzeichnis 'uploads/'
+         ├──► 2. Text Parsing: 'PyPDFLoader' liest den Text seitenweise aus
+         ├──► 3. Chunking: 'RecursiveCharacterTextSplitter' zerlegt den Text 
+         │      (z. B. 1000 Zeichen pro Chunk, 200 Overlap)
+         ├──► 4. Embeddings: Vektorisierung der Textabschnitte
+         └──► 5. Vector Store: 'FAISS.from_documents()' speichert Vektoren lokal
+
+Phase 2
+[ Frontend: User Prompt ]
+         │ (HTTP POST /chat)
+         ▼
+[ FastAPI Service: services/chat.py ]
+         │
+         ├──► 1. Load Index: FAISS lädt den lokalen Vektorindex
+         ├──► 2. Vector Search: 'similarity_search(prompt, k=3)' berechnet Cosine Similarity
+         │      und findet die Top-3 passenden Abschnitte
+         ├──► 3. Context Augmentation: Zusammensetzen des System-Prompts:
+         │      "Use this context: [Chunk 1, Chunk 2, Chunk 3] to answer: [Prompt]"
+         ├──► 4. LLM Inference: Senden des Payloads an die Groq-API (z. B. openai/gpt-oss-120b)
+         └──► 5. Streaming/Return: Antwort wird als Markdown im Frontend gerendert
